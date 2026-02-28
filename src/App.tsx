@@ -8,6 +8,7 @@ import AppBar from "./components/AppBar";
 import { fetchRoute } from "./services/api";
 import { useNavigation } from "./hooks/useNavigation";
 import type { RouteResponse } from "./types/navigation";
+import PlacePicker from "./components/PlacePicker";
 
 function App() {
   const {
@@ -25,8 +26,12 @@ function App() {
   const handleDestination = async (dest: string) => {
     setError(null);
     setLoading(true);
+
     try {
-      const data: RouteResponse = await fetchRoute(dest);
+      const data: RouteResponse = await fetchRoute(
+        dest,
+        "12.9692833,77.6967168",
+      );
       startNavigation(data);
     } catch (e) {
       if (e instanceof Error) {
@@ -45,7 +50,9 @@ function App() {
       <div className="app-container">
         <main>
           {!route && (
-            <DestinationForm onSubmit={handleDestination} disabled={loading} />
+            <>
+              <PlacePicker onSelect={handleDestination} />
+            </>
           )}
           {loading && <p>Loading route...</p>}
           {error && <p className="error">{error}</p>}

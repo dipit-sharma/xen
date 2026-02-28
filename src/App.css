@@ -74,6 +74,17 @@ header {
   font-weight: bold;
 }
 
+/* place-picker helpers copied from the Google example */
+#place-picker-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#place-picker-container {
+  text-align: left;
+}
+
 /* app bar style */
 .app-bar {
   display: flex;

@@ -21,6 +21,6 @@ export function calculateETA(durationSeconds: number): string {
 export function normalizeSteps(steps: Step[]): Step[] {
     return steps.map((s) => ({
         ...s,
-        normalized: normalizeInstruction(s.instruction),
+        normalized: s.html_instructions,
     }));
 }

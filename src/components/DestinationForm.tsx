@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+/// <reference path="../global.d.ts" />
+import React from "react";
+import PlacePicker from "./PlacePicker";
 
 interface Props {
   onSubmit: (destination: string) => void;
@@ -6,28 +8,18 @@ interface Props {
 }
 
 const DestinationForm: React.FC<Props> = ({ onSubmit, disabled }) => {
-  const [input, setInput] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (input.trim()) {
-      onSubmit(input.trim());
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="destination-form">
-      <input
-        type="text"
-        placeholder="Enter destination"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        disabled={disabled}
+    <div className="destination-form">
+      {/* the place picker replaces the text input completely */}
+
+      <PlacePicker
+        placeholder="Enter an address"
+        onSelect={(place) => {
+          const dest = place.formatted_address ?? place.name ?? "";
+          if (dest) onSubmit(dest);
+        }}
       />
-      <button type="submit" disabled={disabled || !input.trim()}>
-        Start
-      </button>
-    </form>
+    </div>
   );
 };
 

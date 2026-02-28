@@ -40,7 +40,7 @@ export function useNavigation() {
     }, [currentStep, sessionId]);
 
     const startNavigation = (response: RouteResponse) => {
-        const normalized = normalizeSteps(response.steps);
+        const normalized = normalizeSteps(response.routes[0].legs[0].steps);
         setRoute({ ...response, steps: normalized });
         setCurrentStep(0);
     };
