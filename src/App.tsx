@@ -4,7 +4,7 @@ import "./App.css";
 import DestinationForm from "./components/DestinationForm";
 import RouteSummary from "./components/RouteSummary";
 import NavigationControls from "./components/NavigationControls";
-import ConnectionStatus from "./components/ConnectionStatus";
+import AppBar from "./components/AppBar";
 import { fetchRoute } from "./services/api";
 import { useNavigation } from "./hooks/useNavigation";
 import type { RouteResponse } from "./types/navigation";
@@ -40,27 +40,26 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <header>
-        <h1>Xen Navigation</h1>
-        <ConnectionStatus status={status} />
-      </header>
-      <main>
-        {!route && (
-          <DestinationForm onSubmit={handleDestination} disabled={loading} />
-        )}
-        {loading && <p>Loading route...</p>}
-        {error && <p className="error">{error}</p>}
-        {route && <RouteSummary route={route} />}
-        {route && (
-          <NavigationControls
-            route={route}
-            currentStep={currentStep}
-            onNext={nextStep}
-            onStop={stopNavigation}
-          />
-        )}
-      </main>
+    <div>
+      <AppBar title="Xen Navigation" status={status} />
+      <div className="app-container">
+        <main>
+          {!route && (
+            <DestinationForm onSubmit={handleDestination} disabled={loading} />
+          )}
+          {loading && <p>Loading route...</p>}
+          {error && <p className="error">{error}</p>}
+          {route && <RouteSummary route={route} />}
+          {route && (
+            <NavigationControls
+              route={route}
+              currentStep={currentStep}
+              onNext={nextStep}
+              onStop={stopNavigation}
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 }
