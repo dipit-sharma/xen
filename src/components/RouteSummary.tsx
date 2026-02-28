@@ -9,7 +9,6 @@ interface Props {
 const RouteSummary: React.FC<Props> = ({ route }) => {
   return (
     <div className="route-summary">
-      <h2>Route Summary</h2>
       <p>{route.summary}</p>
       <p>Distance: {metersToKilometers(route.distance).toFixed(1)} km</p>
       <p>ETA: {calculateETA(route.duration)}</p>

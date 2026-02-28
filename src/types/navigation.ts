@@ -21,6 +21,9 @@ export interface RouteResponse {
 
 export interface NavigationUpdate {
     sessionId: string;
-    currentStep: number;
     timestamp: number;
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
 }

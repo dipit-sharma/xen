@@ -1,16 +1,17 @@
+import { io, Socket } from 'socket.io-client';
 import type { NavigationUpdate } from '../types/navigation';
 
 export interface SocketHandlers {
     onOpen?: () => void;
     onClose?: () => void;
-    onError?: (err: Event) => void;
+    onError?: (err: any) => void;
+    onNavigation?: (update: any) => void;
 }
 
 export class NavigatorSocket {
-    private ws: WebSocket | null = null;
+    private socket: Socket | null = null;
     private sessionId: string;
     private handlers: SocketHandlers;
-    private reconnectInterval = 2000;
 
     constructor(sessionId: string, handlers: SocketHandlers = {}) {
         this.sessionId = sessionId;
@@ -19,28 +20,48 @@ export class NavigatorSocket {
     }
 
     private connect() {
-        const url = (import.meta.env.VITE_XEN_WS_URL || 'ws://localhost:4000') + '/ws';
-        this.ws = new WebSocket(url);
-        this.ws.addEventListener('open', () => {
-            this.send({ sessionId: this.sessionId, currentStep: 0, timestamp: Date.now() });
+        const url = import.meta.env.VITE_XEN_WS_URL || 'ws://localhost:4000';
+        this.socket = io(url, {
+            reconnection: true,
+            reconnectionDelay: 2000,
+        });
+
+        this.socket.on('connect', () => {
+            console.log('Connected to socket server');
+            // Join the session
+            this.socket?.emit('join', {
+                sessionId: this.sessionId,
+                type: 'phone',
+            });
             this.handlers.onOpen?.();
         });
-        this.ws.addEventListener('close', () => {
+
+        this.socket.on('disconnect', () => {
+            console.log('Disconnected from socket server');
             this.handlers.onClose?.();
-            setTimeout(() => this.connect(), this.reconnectInterval);
         });
-        this.ws.addEventListener('error', (e) => {
-            this.handlers.onError?.(e);
+
+        this.socket.on('error', (err) => {
+            console.error('Socket error:', err);
+            this.handlers.onError?.(err);
+        });
+
+        this.socket.on('navigation', (update) => {
+            console.log('Navigation update received:', update);
+            this.handlers.onNavigation?.(update);
         });
     }
 
     send(update: NavigationUpdate) {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify(update));
+        if (this.socket?.connected) {
+            this.socket.emit('navigation', update);
+        } else {
+            console.warn('Socket not connected, cannot send navigation update');
         }
     }
 
     close() {
-        this.ws?.close();
+        this.socket?.disconnect();
+        this.socket = null;
     }
 }

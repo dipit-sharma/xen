@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { NavigationUpdate, RouteResponse } from '../types/navigation';
 import { normalizeSteps } from '../utils/normalize';
 import { NavigatorSocket } from '../services/socket';
+import { getCurrentCoordinates } from './useCorrdinates';
 
 export function useNavigation() {
     const [route, setRoute] = useState<RouteResponse | null>(null);
@@ -28,14 +29,18 @@ export function useNavigation() {
     useEffect(() => {
         if (socketRef.current) {
             if (intervalRef.current) clearInterval(intervalRef.current);
+
             intervalRef.current = window.setInterval(() => {
-                const update: NavigationUpdate = {
-                    sessionId,
-                    currentStep,
-                    timestamp: Date.now(),
-                };
-                socketRef.current?.send(update);
-            }, 2500);
+                getCurrentCoordinates().then((coordinates) => {
+                    const update: NavigationUpdate = {
+                        sessionId,
+                        coordinates,
+                        timestamp: Date.now(),
+                    };
+                    socketRef.current?.send(update);
+                });
+
+            }, 1000);
         }
     }, [currentStep, sessionId]);
 
@@ -64,5 +69,6 @@ export function useNavigation() {
         startNavigation,
         stopNavigation,
         nextStep,
+        sessionId, // expose for API requests
     };
 }

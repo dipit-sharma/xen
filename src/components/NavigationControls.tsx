@@ -23,17 +23,10 @@ const NavigationControls: React.FC<Props> = ({
       <h3>
         Step {currentStep + 1} of {route.steps.length}
       </h3>
+      {step.normalized && <p>{step.normalized}</p>}
       <p>
-        <strong>Instruction:</strong> {step.instruction}
-      </p>
-      {step.normalized && (
-        <p>
-          <strong>Type:</strong> {step.normalized}
-        </p>
-      )}
-      <p>
-        <strong>Distance:</strong> {distKm} km,&nbsp;
-        <strong>Duration:</strong> {durMin} min
+        <span role="img" aria-label="distance">📏</span> {distKm} km,&nbsp;
+        <span role="img" aria-label="duration">⏱️</span> {durMin} min
       </p>
       <button onClick={onNext} disabled={currentStep >= route.steps.length - 1}>
         Next

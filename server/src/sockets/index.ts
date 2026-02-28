@@ -1,4 +1,5 @@
 import { Server, Socket } from 'socket.io';
+import { getCachedRoute } from '../services/routeCache';
 
 interface SessionMap {
     [sessionId: string]: { phone?: Socket; bike?: Socket };
@@ -20,13 +21,22 @@ export function initializeSockets(io: Server) {
         });
 
         socket.on('navigation', (update: any) => {
+            console.log(update, "Updated data");
+
             const sessionId = socket.data.sessionId;
             if (!sessionId) return;
             const pair = sessions[sessionId];
             if (!pair) return;
-            // relay to other side
+
+            // attach route information from cache if available
+            const payload: any = { ...update };
+            const cached = getCachedRoute(sessionId);
+            if (cached) {
+                payload.route = cached;
+            }
+
             const targetType = socket.data.type === 'phone' ? 'bike' : 'phone';
-            pair[targetType]?.emit('navigation', update);
+            pair[targetType]?.emit('navigation', payload);
         });
 
         socket.on('disconnect', () => {

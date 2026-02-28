@@ -1,14 +1,14 @@
 import { useState } from "react";
 import "./App.css";
 
-import DestinationForm from "./components/DestinationForm";
-import RouteSummary from "./components/RouteSummary";
-import NavigationControls from "./components/NavigationControls";
 import AppBar from "./components/AppBar";
-import { fetchRoute } from "./services/api";
-import { useNavigation } from "./hooks/useNavigation";
-import type { RouteResponse } from "./types/navigation";
+import NavigationControls from "./components/NavigationControls";
 import PlacePicker from "./components/PlacePicker";
+import RouteSummary from "./components/RouteSummary";
+import { getCurrentCoordinates } from "./hooks/useCorrdinates";
+import { useNavigation } from "./hooks/useNavigation";
+import { fetchRoute } from "./services/api";
+import type { RouteResponse } from "./types/navigation";
 
 function App() {
   const {
@@ -18,6 +18,7 @@ function App() {
     startNavigation,
     stopNavigation,
     nextStep,
+    sessionId,
   } = useNavigation();
 
   const [loading, setLoading] = useState(false);
@@ -27,10 +28,20 @@ function App() {
     setError(null);
     setLoading(true);
 
+    const coordinates = await getCurrentCoordinates().catch((err) => {
+      console.error("Error getting current coordinates:", err);
+      setError("Unable to get current location");
+      setLoading(false);
+    });
+
     try {
+      if (!coordinates) {
+        throw new Error("Location not available");
+      }
       const data: RouteResponse = await fetchRoute(
         dest,
-        "12.9692833,77.6967168",
+        `${coordinates.latitude},${coordinates.longitude}`,
+        sessionId,
       );
       startNavigation(data);
     } catch (e) {
